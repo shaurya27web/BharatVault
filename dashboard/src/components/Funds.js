@@ -1,88 +1,54 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { addFunds, withdrawFunds } from "../api/upiAPI";
+import { GeneralContext } from "./GeneralContext";
 
-const Funds = () => {
+function Funds() {
+  const { user, setUser } = useContext(GeneralContext);
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleAddFunds = async () => {
+    setLoading(true);
+    try {
+      const res = await addFunds(user._id, Number(amount));
+      setUser({ ...user, balance: user.balance + Number(amount) });
+      setMessage("Funds added successfully!");
+    } catch {
+      setMessage("Transaction failed. Try again.");
+    }
+    setLoading(false);
+  };
+
+  const handleWithdrawFunds = async () => {
+    if (user.balance < amount) return setMessage("Insufficient balance");
+    setLoading(true);
+    try {
+      const res = await withdrawFunds(user._id, Number(amount));
+      setUser({ ...user, balance: user.balance - Number(amount) });
+      setMessage("Funds withdrawn successfully!");
+    } catch {
+      setMessage("Transaction failed. Try again.");
+    }
+    setLoading(false);
+  };
+
   return (
-    <>
-      <div className="funds">
-        <p>Instant, zero-cost fund transfers with UPI </p>
-        <Link className="btn btn-green">Add funds</Link>
-        <Link className="btn btn-blue">Withdraw</Link>
+    <div className="funds-container">
+      <h2>Wallet Balance: ₹{user.balance}</h2>
+      <input
+        type="number"
+        placeholder="Enter Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+      <div>
+        <button onClick={handleAddFunds} disabled={loading}>Add Funds</button>
+        <button onClick={handleWithdrawFunds} disabled={loading}>Withdraw</button>
       </div>
-
-      <div className="row">
-        <div className="col">
-          <span>
-            <p>Equity</p>
-          </span>
-
-          <div className="table">
-            <div className="data">
-              <p>Available margin</p>
-              <p className="imp colored">4,043.10</p>
-            </div>
-            <div className="data">
-              <p>Used margin</p>
-              <p className="imp">3,757.30</p>
-            </div>
-            <div className="data">
-              <p>Available cash</p>
-              <p className="imp">4,043.10</p>
-            </div>
-            <hr />
-            <div className="data">
-              <p>Opening Balance</p>
-              <p>4,043.10</p>
-            </div>
-            <div className="data">
-              <p>Opening Balance</p>
-              <p>3736.40</p>
-            </div>
-            <div className="data">
-              <p>Payin</p>
-              <p>4064.00</p>
-            </div>
-            <div className="data">
-              <p>SPAN</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Delivery margin</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Exposure</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Options premium</p>
-              <p>0.00</p>
-            </div>
-            <hr />
-            <div className="data">
-              <p>Collateral (Liquid funds)</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Collateral (Equity)</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Total Collateral</p>
-              <p>0.00</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="col">
-          <div className="commodity">
-            <p>You don't have a commodity account</p>
-            <Link className="btn btn-blue">Open Account</Link>
-          </div>
-        </div>
-      </div>
-    </>
+      {message && <p>{message}</p>}
+    </div>
   );
-};
+}
 
 export default Funds;
