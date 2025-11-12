@@ -1,25 +1,43 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:3002" });
-
-// Add funds
-export const addFunds = async (userId, amount) => {
-  try {
-    const res = await API.post("/transaction/pay", { userId, amount, type: "add" });
-    return res;
-  } catch (err) {
-    console.error("Add Funds API error:", err.response?.data || err.message);
-    throw err;
+const API = axios.create({ 
+  baseURL: "http://localhost:3002/transactions", // Your backend URL
+  headers: {
+    'Content-Type': 'application/json',
   }
-};
+});
 
-// Withdraw funds
-export const withdrawFunds = async (userId, amount) => {
-  try {
-    const res = await API.post("/transaction/pay", { userId, amount, type: "withdraw" });
-    return res;
-  } catch (err) {
-    console.error("Withdraw Funds API error:", err.response?.data || err.message);
-    throw err;
+// Add request interceptor for debugging
+API.interceptors.request.use(
+  (config) => {
+    console.log('Making API request to:', config.url);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-};
+);
+
+// Add response interceptor for debugging
+API.interceptors.response.use(
+  (response) => {
+    console.log('API response received:', response.data);
+    return response;
+  },
+  (error) => {
+    console.log('API error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
+export const addFunds = (userId, amount) =>
+  API.post("/transactions/pay", { userId, amount, type: "add" });
+
+export const withdrawFunds = (userId, amount) =>
+  API.post("/transactions/pay", { userId, amount, type: "withdraw" });
+
+export const syncUser = (userData) =>
+  API.post("/users/sync", userData);
+
+export const getUserByClerkId = (clerkId) =>
+  API.get(`/users/clerk/${clerkId}`);

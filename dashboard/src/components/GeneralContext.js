@@ -1,19 +1,35 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-export const GeneralContext = createContext();
+const GeneralContext = createContext();
 
-export const GeneralContextProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    _id: "12345",
-    balance: 5000,
-  });
+export const useGeneral = () => {
+  const context = useContext(GeneralContext);
+  if (!context) {
+    throw new Error('useGeneral must be used within a GeneralProvider');
+  }
+  return context;
+};
 
-  const openBuyWindow = (uid) => {
-    console.log(`Buy window opened for ${uid}`);
+export const GeneralProvider = ({ children }) => {
+  const { user: authUser } = useAuth();
+  const [user, setUser] = useState(authUser);
+  const [activeComponent, setActiveComponent] = useState('home');
+
+  // Update user when auth user changes
+  React.useEffect(() => {
+    setUser(authUser);
+  }, [authUser]);
+
+  const value = {
+    user,
+    setUser,
+    activeComponent,
+    setActiveComponent
   };
 
   return (
-    <GeneralContext.Provider value={{ user, setUser, openBuyWindow }}>
+    <GeneralContext.Provider value={value}>
       {children}
     </GeneralContext.Provider>
   );

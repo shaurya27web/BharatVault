@@ -1,71 +1,129 @@
-const UserModel = require("../models/UserModel");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+const User = require("../models/UserModel");
 
-// Register user
-exports.registerUser = async (req, res) => {
-   console.log("Incoming body:", req.body);
+// Sync Clerk user with MongoDB
+exports.syncUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { clerkId, email, firstName, lastName, phone } = req.body;
 
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
+    if (!clerkId || !email) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required fields: clerkId and email" 
+      });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new UserModel({ name, email, password: hashedPassword });
-    await newUser.save();
+    // Check if user already exists
+    let user = await User.findOne({ 
+      $or: [{ clerkId }, { email }] 
+    });
 
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (err) {
-    console.error("Login error:", err);
-
-    res.status(500).json({ message: "Error registering user", error: err });
-  }
-};
-
-// Login user
-exports.loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await UserModel.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    if (!user) {
+      // Create new user
+      user = new User({
+        clerkId,
+        email,
+        firstName: firstName || "",
+        lastName: lastName || "",
+        phone: phone || "",
+        balance: 1000
+      });
+      
+      await user.save();
+      console.log("New user created:", user.email);
+    } else {
+      // Update existing user if needed
+      user.firstName = firstName || user.firstName;
+      user.lastName = lastName || user.lastName;
+      user.phone = phone || user.phone;
+      user.updatedAt = new Date();
+      await user.save();
+    }
 
     res.status(200).json({
-      message: "Login successful",
-      token,
-      user: { name: user.name, email: user.email },
+      success: true,
+      message: "User synced successfully",
+      user: {
+        _id: user._id,
+        clerkId: user.clerkId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: user.balance,
+        phone: user.phone
+      }
     });
-  } catch (err) {
-    res.status(500).json({ message: "Error logging in", error: err });
+  } catch (error) {
+    console.error("User sync error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to sync user", 
+      error: error.message 
+    });
   }
 };
 
-// Verify token middleware
-exports.verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Access denied" });
-
+// Get user by Clerk ID
+exports.getUserByClerkId = async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+    const user = await User.findOne({ clerkId: req.params.clerkId });
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        clerkId: user.clerkId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: user.balance,
+        phone: user.phone
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: "Error fetching user", 
+      error: error.message 
+    });
   }
 };
 
-// Get user profile
-exports.getUserProfile = async (req, res) => {
+// Get user by MongoDB ID
+exports.getUserById = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.user.id).select("-password");
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching user profile", error: err });
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        clerkId: user.clerkId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: user.balance,
+        phone: user.phone
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: "Error fetching user", 
+      error: error.message 
+    });
   }
 };

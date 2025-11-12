@@ -1,9 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controllers/userController");
+const {
+  syncUser,
+  getUserByClerkId,
+  getUserById
+} = require("../controllers/userController");
 
-router.post("/register", userController.registerUser);
-router.post("/login", userController.loginUser);
-router.get("/profile", userController.verifyToken, userController.getUserProfile);
+// Sync Clerk user with MongoDB
+router.post("/sync", syncUser);
+
+// Get user by Clerk ID
+router.get("/clerk/:clerkId", getUserByClerkId);
+
+// Get user by MongoDB ID
+router.get("/:userId", getUserById);
 
 module.exports = router;

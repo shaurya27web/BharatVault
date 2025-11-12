@@ -16,7 +16,11 @@ const vaultRoutes = require("./routes/vaultRoutes");
 const app = express();
 
 // ✅ middleware
-app.use(cors());
+// In backend index.js
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001'], // Frontend & Dashboard
+  credentials: true
+}));
 app.use(bodyParser.json());
 
 // ✅ route prefixes
@@ -24,7 +28,7 @@ app.use("/holdings", holdingsRoutes);
 app.use("/orders", ordersRoutes);
 app.use("/positions", positionsRoutes);
 app.use("/user", userRoutes);
-app.use("/transaction", transactionRoutes);
+app.use("/transactions", transactionRoutes);
 app.use("/lending", lendingRoutes);
 app.use("/vault", vaultRoutes);
 

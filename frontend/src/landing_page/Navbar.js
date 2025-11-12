@@ -1,86 +1,66 @@
-import React from "react";
-import { Link } from "react-router-dom";
-function Navbar() {
+import React from 'react';
+import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton, useUser } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
+
+const Navbar = () => {
+  const { user } = useUser();
+
+  const handleDashboardClick = () => {
+    if (user) {
+      // Store user data for dashboard to use
+      const userData = {
+        clerkId: user.id,
+        email: user.primaryEmailAddress?.emailAddress,
+        firstName: user.firstName,
+        lastName: user.lastName
+      };
+      localStorage.setItem('clerkUser', JSON.stringify(userData));
+      
+      // Redirect to the actual dashboard application
+      window.location.href = 'http://localhost:3001';
+    }
+  };
+
   return (
-    <div className="container">
-      <nav className="navbar navbar-expand-lg bg-body-tertiary
-      border-bottom" style={{backgroundColor:"#FFF"}}>
-        <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
-            <img src="media\images\logo.svg"
-            style={{width:"30%"}}>
-            </img>
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
+    <nav className="navbar">
+      <div className="nav-brand">
+        <Link to="/">BharatVault</Link>
+      </div>
+      
+      <div className="nav-links">
+        <Link to="/">Home</Link>
+        
+        <SignedIn>
+          {/* Show Dashboard button that opens the actual dashboard app */}
+          <button 
+            onClick={handleDashboardClick}
+            className="dashboard-link" 
+            style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #0ca678 100%)', 
+              color: 'white', 
+              padding: '8px 16px', 
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              textDecoration: 'none',
+              display: 'inline-block'
+            }}
           >
-            <span className="navbar-toggler-icon"></span>
+            🚀 Go to Dashboard
           </button>
-
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-         
-
-            <form className="d-flex" role="search">
-                 <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="/signup">
-                 SignUp
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/about">
-                  About
-                </Link>
-              </li>
-              <li className="nav-item dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
-                 to="/"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  Utilities
-                </Link>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to="/calculators">
-                      Calculators
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/Margin Calculator">
-                      Margin Calculator
-                    </Link>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/SIP Calculator">
-                     SIP Calculator
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link " aria-disabled="true" to="/pricing">
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-            </form>
-          </div>
-        </div>
-      </nav>
-    </div>
+          <UserButton />
+        </SignedIn>
+        
+        <SignedOut>
+          {/* Show sign in/up buttons when signed out */}
+          <SignInButton mode="modal" />
+          <SignUpButton mode="modal" />
+        </SignedOut>
+      </div>
+    </nav>
   );
-}
+};
 
 export default Navbar;

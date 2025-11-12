@@ -1,70 +1,107 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { addFunds, withdrawFunds } from "../api/upiAPI";
-import { GeneralContext } from "./GeneralContext";
+import { useGeneral } from "./GeneralContext";
 
 function Funds() {
-  const { user, setUser } = useContext(GeneralContext);
+  const { user, setUser } = useGeneral();
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleAddFunds = async () => {
-    setLoading(true);
-    try {
-      const res = await addFunds(user._id, Number(amount));
-      if (res.status === 200) {
-        setUser({ ...user, balance: user.balance + Number(amount) });
-        setMessage("Funds added successfully!");
-      } else {
-        setMessage("Transaction failed. Try again.");
-      }
-    } catch (error) {
-      console.error(error);
-      setMessage("Transaction failed. Try again.");
+  const handleTransaction = async (type) => {
+    if (!user || !user._id) {
+      setMessage("Authentication error. Please refresh the page.");
+      return;
     }
-    setLoading(false);
-  };
 
-  const handleWithdrawFunds = async () => {
-    if (user.balance < amount) {
+    if (!amount || amount <= 0) {
+      setMessage("Please enter a valid amount");
+      return;
+    }
+
+    if (type === "withdraw" && user.balance < amount) {
       setMessage("Insufficient balance");
       return;
     }
 
     setLoading(true);
+    setMessage("");
+
     try {
-      const res = await withdrawFunds(user._id, Number(amount));
-      if (res.status === 200) {
-        setUser({ ...user, balance: user.balance - Number(amount) });
-        setMessage("Funds withdrawn successfully!");
+      const res = type === "add" 
+        ? await addFunds(user._id, Number(amount))
+        : await withdrawFunds(user._id, Number(amount));
+
+      if (res.data.success) {
+        setUser({ ...user, balance: res.data.newBalance });
+        setMessage(`Funds ${type === "add" ? "added" : "withdrawn"} successfully!`);
+        setAmount("");
       } else {
-        setMessage("Transaction failed. Try again.");
+        setMessage(res.data.message || "Transaction failed. Try again.");
       }
     } catch (error) {
-      console.error(error);
-      setMessage("Transaction failed. Try again.");
+      console.error(`${type} funds error:`, error);
+      
+      if (error.response?.data) {
+        setMessage(error.response.data.message || `Transaction failed.`);
+      } else if (error.request) {
+        setMessage("No response from server. Check if backend is running.");
+      } else {
+        setMessage("Transaction failed: " + error.message);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  const handleAddFunds = () => handleTransaction("add");
+  const handleWithdrawFunds = () => handleTransaction("withdraw");
+
+  if (!user) {
+    return (
+      <div className="funds-container">
+        <p>Loading your account information...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="funds-container">
-      <h2>Wallet Balance: ₹{user?.balance || 0}</h2>
-      <input
-        type="number"
-        placeholder="Enter Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <div>
-        <button onClick={handleAddFunds} disabled={loading}>
+      <h2>Wallet Balance: ₹{user?.balance?.toLocaleString() || 0}</h2>
+      
+      <div className="input-section">
+        <input
+          type="number"
+          placeholder="Enter Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          min="1"
+          disabled={loading}
+        />
+      </div>
+      
+      <div className="button-group">
+        <button 
+          onClick={handleAddFunds} 
+          disabled={loading || !amount || amount <= 0}
+          className="btn-primary"
+        >
           {loading ? "Processing..." : "Add Funds"}
         </button>
-        <button onClick={handleWithdrawFunds} disabled={loading}>
+        <button 
+          onClick={handleWithdrawFunds} 
+          disabled={loading || !amount || amount <= 0}
+          className="btn-secondary"
+        >
           {loading ? "Processing..." : "Withdraw"}
         </button>
       </div>
-      {message && <p>{message}</p>}
+      
+      {message && (
+        <p className={`message ${message.includes('successfully') ? 'success' : 'error'}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }
