@@ -1,64 +1,75 @@
-const TransactionModel = require("../models/TransactionModel");
+const mongoose = require("mongoose");
 
-// Create a new transaction
-exports.createTransaction = async (req, res) => {
+exports.handleTransaction = async (req, res) => {
   try {
-    const { userId, type, amount, description } = req.body;
+    const { userId, amount, type } = req.body;
 
-    if (!userId || !type || !amount) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    const newTransaction = new TransactionModel({
-      userId,
-      type,
-      amount,
-      description,
-      status: "pending"
-    });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    await newTransaction.save();
-    res.status(201).json({ message: "Transaction created successfully", transaction: newTransaction });
+    if (type === "add") {
+      user.balance += amount;
+    } else if (type === "withdraw") {
+      if (user.balance < amount)
+        return res.status(400).json({ message: "Insufficient balance" });
+      user.balance -= amount;
+    }
+
+    await user.save();
+    res.status(200).json({ message: "Transaction successful", balance: user.balance });
   } catch (err) {
-    console.error("Error creating transaction:", err);
-    res.status(500).json({ message: "Error creating transaction", error: err });
+    console.error("Transaction error:", err);
+    res.status(500).json({ message: "Transaction failed", error: err.message });
   }
 };
 
-// Get all transactions for a user
-exports.getTransactionsByUser = async (req, res) => {
+
+const Transaction = require("../models/TransactionModel");
+const User = require("../models/UserModel");
+
+// Handle Add / Withdraw
+exports.handleTransaction = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const transactions = await TransactionModel.find({ userId }).sort({ createdAt: -1 });
+    const { userId, amount, type } = req.body;
+
+    if (!userId || !amount || !type) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (type === "withdraw" && user.balance < amount) {
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    user.balance = type === "add" ? user.balance + amount : user.balance - amount;
+    await user.save();
+
+    const transaction = new Transaction({ userId, amount, type });
+    await transaction.save();
+
+    res.status(200).json({
+      message: "Transaction successful",
+      newBalance: user.balance,
+      transaction,
+    });
+  } catch (err) {
+    console.error("Transaction error:", err);
+    res.status(500).json({ message: "Transaction failed", error: err.message });
+  }
+};
+
+// Fetch transactions by user
+exports.getTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.params.userId });
     res.status(200).json(transactions);
   } catch (err) {
-    console.error("Error fetching transactions:", err);
     res.status(500).json({ message: "Error fetching transactions", error: err });
-  }
-};
-
-// Update transaction status (mark completed or failed)
-exports.updateTransactionStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    if (!["pending", "completed", "failed"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-
-    const updatedTransaction = await TransactionModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-
-    if (!updatedTransaction)
-      return res.status(404).json({ message: "Transaction not found" });
-
-    res.status(200).json({ message: "Transaction status updated", transaction: updatedTransaction });
-  } catch (err) {
-    console.error("Error updating transaction:", err);
-    res.status(500).json({ message: "Error updating transaction", error: err });
   }
 };

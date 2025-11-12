@@ -1,14 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
+// ✅ Make sure these functions are exported properly
 const transactionController = require("../controllers/transactionController");
 
-// Create transaction
-router.post("/create", transactionController.createTransaction);
-
-// Get transactions for a user
-router.get("/:userId", transactionController.getTransactionsByUser);
-
-// Update status
-router.put("/update/:id", transactionController.updateTransactionStatus);
+router.post("/pay", transactionController.handleTransaction);
+router.get("/:userId", transactionController.getTransactions);
 
 module.exports = router;

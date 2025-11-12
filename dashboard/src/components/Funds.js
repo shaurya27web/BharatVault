@@ -12,22 +12,36 @@ function Funds() {
     setLoading(true);
     try {
       const res = await addFunds(user._id, Number(amount));
-      setUser({ ...user, balance: user.balance + Number(amount) });
-      setMessage("Funds added successfully!");
-    } catch {
+      if (res.status === 200) {
+        setUser({ ...user, balance: user.balance + Number(amount) });
+        setMessage("Funds added successfully!");
+      } else {
+        setMessage("Transaction failed. Try again.");
+      }
+    } catch (error) {
+      console.error(error);
       setMessage("Transaction failed. Try again.");
     }
     setLoading(false);
   };
 
   const handleWithdrawFunds = async () => {
-    if (user.balance < amount) return setMessage("Insufficient balance");
+    if (user.balance < amount) {
+      setMessage("Insufficient balance");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await withdrawFunds(user._id, Number(amount));
-      setUser({ ...user, balance: user.balance - Number(amount) });
-      setMessage("Funds withdrawn successfully!");
-    } catch {
+      if (res.status === 200) {
+        setUser({ ...user, balance: user.balance - Number(amount) });
+        setMessage("Funds withdrawn successfully!");
+      } else {
+        setMessage("Transaction failed. Try again.");
+      }
+    } catch (error) {
+      console.error(error);
       setMessage("Transaction failed. Try again.");
     }
     setLoading(false);
@@ -35,7 +49,7 @@ function Funds() {
 
   return (
     <div className="funds-container">
-      <h2>Wallet Balance: ₹{user.balance}</h2>
+      <h2>Wallet Balance: ₹{user?.balance || 0}</h2>
       <input
         type="number"
         placeholder="Enter Amount"
@@ -43,8 +57,12 @@ function Funds() {
         onChange={(e) => setAmount(e.target.value)}
       />
       <div>
-        <button onClick={handleAddFunds} disabled={loading}>Add Funds</button>
-        <button onClick={handleWithdrawFunds} disabled={loading}>Withdraw</button>
+        <button onClick={handleAddFunds} disabled={loading}>
+          {loading ? "Processing..." : "Add Funds"}
+        </button>
+        <button onClick={handleWithdrawFunds} disabled={loading}>
+          {loading ? "Processing..." : "Withdraw"}
+        </button>
       </div>
       {message && <p>{message}</p>}
     </div>

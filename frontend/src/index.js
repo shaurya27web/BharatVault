@@ -13,12 +13,10 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import Chatbot from "./chatbot/chatbot";
 
 
-// Import your Publishable Key
+//Clerk API Fetching
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-// ✅ Debug line — check if your key is being read correctly
 console.log("Loaded Clerk Key:", PUBLISHABLE_KEY);
-
 if (!PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key');
 }
