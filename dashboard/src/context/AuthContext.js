@@ -16,36 +16,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for clerk user data passed from frontend
     const initializeAuth = async () => {
       try {
+        console.log('🔍 Checking localStorage for clerkUser...');
         const clerkUserData = localStorage.getItem('clerkUser');
+        console.log('🔍 clerkUserData from localStorage:', clerkUserData);
         
         if (clerkUserData) {
           const userData = JSON.parse(clerkUserData);
+          console.log('✅ Found user data:', userData);
           
           // Sync with backend
+          console.log('🔄 Syncing user with backend...');
           const response = await syncUser(userData);
+          console.log('🔍 Backend sync response:', response);
           
           if (response.data.success) {
             setUser(response.data.user);
-            console.log("User authenticated:", response.data.user.email);
+            console.log("✅ User authenticated:", response.data.user.email);
           } else {
-            console.error('Failed to sync user:', response.data.message);
-            // Redirect to login if sync fails
-            window.location.href = 'http://localhost:3000'; // Frontend URL
+            console.error('❌ Failed to sync user:', response.data.message);
           }
-          
-          // Clear temporary storage
-          localStorage.removeItem('clerkUser');
         } else {
-          // No user data found, redirect to login
-          console.log('No user data found, redirecting to login...');
-          window.location.href = 'http://localhost:3000';
+          console.log('❌ No user data found in localStorage');
+          console.log('🔍 All localStorage items:', { ...localStorage });
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
-        window.location.href = 'http://localhost:3000';
+        console.error('❌ Auth initialization error:', error);
       } finally {
         setLoading(false);
       }
@@ -54,16 +51,9 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const logout = () => {
-    setUser(null);
-    // Redirect to frontend for proper logout
-    window.location.href = 'http://localhost:3000';
-  };
-
   const value = {
     user,
     loading,
-    logout,
     isAuthenticated: !!user
   };
 

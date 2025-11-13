@@ -14,7 +14,6 @@ export const useGeneral = () => {
 export const GeneralProvider = ({ children }) => {
   const { user: authUser } = useAuth();
   const [user, setUser] = useState(authUser);
-  const [activeComponent, setActiveComponent] = useState('home');
 
   // Update user when auth user changes
   React.useEffect(() => {
@@ -23,9 +22,7 @@ export const GeneralProvider = ({ children }) => {
 
   const value = {
     user,
-    setUser,
-    activeComponent,
-    setActiveComponent
+    setUser
   };
 
   return (

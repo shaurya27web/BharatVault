@@ -3,14 +3,27 @@ const User = require("../models/UserModel");
 // Sync Clerk user with MongoDB
 exports.syncUser = async (req, res) => {
   try {
+    console.log("🔍 User sync request received, body:", req.body);
+    
+    // Check if body exists
+    if (!req.body) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Request body is missing" 
+      });
+    }
+
     const { clerkId, email, firstName, lastName, phone } = req.body;
 
     if (!clerkId || !email) {
       return res.status(400).json({ 
         success: false,
-        message: "Missing required fields: clerkId and email" 
+        message: "Missing required fields: clerkId and email",
+        received: req.body 
       });
     }
+
+    console.log("🔄 Syncing user:", { clerkId, email, firstName, lastName });
 
     // Check if user already exists
     let user = await User.findOne({ 
@@ -29,7 +42,7 @@ exports.syncUser = async (req, res) => {
       });
       
       await user.save();
-      console.log("New user created:", user.email);
+      console.log("✅ New user created:", user.email);
     } else {
       // Update existing user if needed
       user.firstName = firstName || user.firstName;
@@ -37,6 +50,7 @@ exports.syncUser = async (req, res) => {
       user.phone = phone || user.phone;
       user.updatedAt = new Date();
       await user.save();
+      console.log("✅ Existing user updated:", user.email);
     }
 
     res.status(200).json({
@@ -53,7 +67,7 @@ exports.syncUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("User sync error:", error);
+    console.error("❌ User sync error:", error);
     res.status(500).json({ 
       success: false,
       message: "Failed to sync user", 

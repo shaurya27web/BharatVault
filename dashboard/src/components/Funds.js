@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { addFunds, withdrawFunds } from "../api/upiAPI";
-import { useGeneral } from "./GeneralContext";
+import { useGeneral } from "./GeneralContext"; // Fixed import path
 
+// Rest of your Funds.js code remains exactly the same...
 function Funds() {
   const { user, setUser } = useGeneral();
   const [amount, setAmount] = useState("");

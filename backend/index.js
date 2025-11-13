@@ -15,13 +15,23 @@ const vaultRoutes = require("./routes/vaultRoutes");
 
 const app = express();
 
-// ✅ middleware
-// In backend index.js
+// ✅ MIDDLEWARE - Fix the order
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'], // Frontend & Dashboard
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // This should come before routes
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// ✅ Test route for body parsing
+app.post("/test-body", (req, res) => {
+  console.log("🔍 Test body received:", req.body);
+  res.json({ 
+    success: true, 
+    body: req.body,
+    message: "Body parsing test" 
+  });
+});
 
 // ✅ route prefixes
 app.use("/holdings", holdingsRoutes);

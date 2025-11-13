@@ -1,105 +1,50 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { VerticalGraph } from "./VerticalGraph";
+import React from 'react';
 
 const Holdings = () => {
-  const [allHoldings, setAllHoldings] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchHoldings = async () => {
-      try {
-        const res = await axios.get("http://localhost:3002/holdings");
-        setAllHoldings(res.data);
-      } catch (err) {
-        console.error("Error fetching holdings:", err);
-        setError("Failed to load holdings.");
-      }
-    };
-
-    fetchHoldings();
-  }, []);
-
-  if (error) {
-    return <div style={{ color: "red", textAlign: "center" }}>{error}</div>;
-  }
-
-  if (allHoldings.length === 0) {
-    return <div style={{ textAlign: "center" }}>Loading holdings...</div>;
-  }
-
-  // Chart data
-  const labels = allHoldings.map((stock) => stock.name);
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Stock Price",
-        data: allHoldings.map((stock) => stock.price),
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
-      },
-    ],
-  };
+  const holdings = [
+    { symbol: 'RELIANCE', name: 'Reliance Industries', quantity: 10, avgPrice: 2450, ltp: 2580, pnl: '+13,000' },
+    { symbol: 'TCS', name: 'Tata Consultancy', quantity: 5, avgPrice: 3200, ltp: 3350, pnl: '+750' },
+    { symbol: 'INFY', name: 'Infosys', quantity: 8, avgPrice: 1500, ltp: 1620, pnl: '+960' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank', quantity: 12, avgPrice: 1400, ltp: 1520, pnl: '+1,440' }
+  ];
 
   return (
-    <>
-      <h3 className="title">Holdings ({allHoldings.length})</h3>
-
-      <div className="order-table">
-        <table>
+    <div style={{ 
+      background: '#1e293b',
+      padding: '20px',
+      borderRadius: '12px',
+      border: '1px solid #334155'
+    }}>
+      <h3 style={{ margin: '0 0 15px 0', color: '#f8fafc' }}>Your Holdings</h3>
+      
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr>
-              <th>Instrument</th>
-              <th>Qty.</th>
-              <th>Avg. cost</th>
-              <th>LTP</th>
-              <th>Cur. val</th>
-              <th>P&amp;L</th>
-              <th>Net chg.</th>
-              <th>Day chg.</th>
+            <tr style={{ borderBottom: '1px solid #334155' }}>
+              <th style={{ textAlign: 'left', padding: '8px', color: '#94a3b8', fontWeight: 'normal' }}>Stock</th>
+              <th style={{ textAlign: 'right', padding: '8px', color: '#94a3b8', fontWeight: 'normal' }}>Qty</th>
+              <th style={{ textAlign: 'right', padding: '8px', color: '#94a3b8', fontWeight: 'normal' }}>LTP</th>
+              <th style={{ textAlign: 'right', padding: '8px', color: '#94a3b8', fontWeight: 'normal' }}>P&L</th>
             </tr>
           </thead>
           <tbody>
-            {allHoldings.map((stock, index) => {
-              const curValue = stock.price * stock.qty;
-              const profit = curValue - stock.avg * stock.qty;
-              const profClass = profit >= 0 ? "profit" : "loss";
-              const dayClass = stock.isLoss ? "loss" : "profit";
-
-              return (
-                <tr key={index}>
-                  <td>{stock.name}</td>
-                  <td>{stock.qty}</td>
-                  <td>{stock.avg?.toFixed(2)}</td>
-                  <td>{stock.price?.toFixed(2)}</td>
-                  <td>{curValue.toFixed(2)}</td>
-                  <td className={profClass}>{profit.toFixed(2)}</td>
-                  <td className={profClass}>{stock.net}</td>
-                  <td className={dayClass}>{stock.day}</td>
-                </tr>
-              );
-            })}
+            {holdings.map((holding, index) => (
+              <tr key={index} style={{ borderBottom: '1px solid #334155' }}>
+                <td style={{ padding: '12px 8px' }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#f8fafc' }}>{holding.symbol}</div>
+                    <div style={{ fontSize: '0.8em', color: '#94a3b8' }}>{holding.name}</div>
+                  </div>
+                </td>
+                <td style={{ textAlign: 'right', padding: '12px 8px', color: '#f8fafc' }}>{holding.quantity}</td>
+                <td style={{ textAlign: 'right', padding: '12px 8px', color: '#f8fafc' }}>₹{holding.ltp}</td>
+                <td style={{ textAlign: 'right', padding: '12px 8px', color: '#10b981' }}>{holding.pnl}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-
-      <div className="row">
-        <div className="col">
-          <h5>29,875.<span>55</span></h5>
-          <p>Total investment</p>
-        </div>
-        <div className="col">
-          <h5>31,428.<span>95</span></h5>
-          <p>Current value</p>
-        </div>
-        <div className="col">
-          <h5>1,553.40 (+5.20%)</h5>
-          <p>P&amp;L</p>
-        </div>
-      </div>
-
-      <VerticalGraph data={data} />
-    </>
+    </div>
   );
 };
 
