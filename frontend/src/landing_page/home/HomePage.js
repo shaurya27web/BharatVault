@@ -7,25 +7,33 @@ import ChatBot from "../../chatbot/chatbot";
 function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [showChatBot, setShowChatBot] = useState(false);
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showLearningPath, setShowLearningPath] = useState(false);
+  const [activeLearningModule, setActiveLearningModule] = useState(0);
   const { user } = useUser();
   const { openSignIn } = useClerk();
 
-  // Color Scheme
+  // Professional Blue-White Color Scheme
   const colors = {
     primary: "#2563eb",
+    primaryLight: "#3b82f6",
     primaryDark: "#1d4ed8",
-    secondary: "#f59e0b",
-    accent: "#10b981",
-    dark: "#1e293b",
+    secondary: "#0369a1",
+    accent: "#0ea5e9",
+    dark: "#0f172a",
     light: "#f8fafc",
+    lighter: "#f1f5f9",
     gray: "#64748b",
     white: "#ffffff",
+    gradient: "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)",
+    gradientLight: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
   };
 
   // Handle dashboard redirect
   const handleDashboardClick = () => {
     if (user) {
-      // Store user data for dashboard to use
       const userData = {
         clerkId: user.id,
         email: user.primaryEmailAddress?.emailAddress,
@@ -33,8 +41,6 @@ function HomePage() {
         lastName: user.lastName,
       };
       localStorage.setItem("clerkUser", JSON.stringify(userData));
-
-      // Redirect to the actual dashboard application
       window.location.href = "http://localhost:3001";
     }
   };
@@ -65,29 +71,416 @@ function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email) {
+      setIsSubscribed(true);
+      setEmail("");
+      setTimeout(() => setIsSubscribed(false), 3000);
+    }
+  };
+
+  const handleStartLearning = () => {
+    setShowLearningPath(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // USPs Data
+  const societalSolutions = [
+    {
+      problem: "Lack of financial literacy",
+      solution: "AI-powered guidance + gamified micro-goals",
+      outcome: "Learning through doing",
+      icon: "graduation-cap",
+      color: "#3b82f6"
+    },
+    {
+      problem: "Low savings discipline",
+      solution: "UPI Auto-Save + CashFlow adjustments",
+      outcome: "Consistent, automatic saving",
+      icon: "piggy-bank",
+      color: "#06b6d4"
+    },
+    {
+      problem: "Unequal access to investment tools",
+      solution: "Stock lending & micro-investments",
+      outcome: "Democratized wealth creation",
+      icon: "scale-balanced",
+      color: "#10b981"
+    },
+    {
+      problem: "High youth debt & overspending",
+      solution: "CashFlow Manager + spending prediction",
+      outcome: "Debt prevention & control",
+      icon: "chart-line",
+      color: "#f59e0b"
+    },
+    {
+      problem: "Financial anxiety & burnout",
+      solution: "Gamified progress tracking",
+      outcome: "Motivation & mental ease",
+      icon: "gamepad",
+      color: "#8b5cf6"
+    },
+    {
+      problem: "Exclusion of rural/low-income earners",
+      solution: "Simple UI + micro-savings rules",
+      outcome: "Inclusive financial participation",
+      icon: "users",
+      color: "#ec4899"
+    }
+  ];
+
+  // Learning Path Structure
+  const learningPath = [
+    {
+      module: 1,
+      title: "Financial Foundations",
+      duration: "2 weeks",
+      level: "Beginner",
+      topics: [
+        "Understanding Basic Financial Terms",
+        "Budgeting Fundamentals",
+        "Importance of Emergency Funds",
+        "Introduction to Saving vs Investing"
+      ],
+      outcomes: [
+        "Create your first budget",
+        "Set up emergency fund goals",
+        "Understand financial terminology",
+        "Establish basic financial goals"
+      ],
+      resources: [
+        "Interactive Budget Planner",
+        "Financial Terms Dictionary",
+        "Goal Setting Worksheet"
+      ]
+    },
+    {
+      module: 2,
+      title: "Smart Saving Strategies",
+      duration: "3 weeks",
+      level: "Intermediate",
+      topics: [
+        "Automated Saving Systems",
+        "Micro-Saving Techniques",
+        "UPI Auto-Save Implementation",
+        "CashFlow Optimization",
+        "Behavioral Finance Principles"
+      ],
+      outcomes: [
+        "Implement automatic savings",
+        "Master micro-saving habits",
+        "Optimize cash flow management",
+        "Develop financial discipline"
+      ],
+      resources: [
+        "Savings Automation Guide",
+        "CashFlow Analysis Tool",
+        "Behavioral Finance Workbook"
+      ]
+    },
+    {
+      module: 3,
+      title: "Investment Fundamentals",
+      duration: "4 weeks",
+      level: "Intermediate",
+      topics: [
+        "Stock Market Basics",
+        "Mutual Funds & ETFs",
+        "Risk Management",
+        "Portfolio Diversification",
+        "Market Analysis Techniques"
+      ],
+      outcomes: [
+        "Make first investment decision",
+        "Understand risk profiles",
+        "Build diversified portfolio",
+        "Analyze market trends"
+      ],
+      resources: [
+        "Investment Simulator",
+        "Risk Assessment Tool",
+        "Portfolio Builder",
+        "Market Analysis Templates"
+      ]
+    },
+    {
+      module: 4,
+      title: "Advanced Wealth Building",
+      duration: "3 weeks",
+      level: "Advanced",
+      topics: [
+        "Advanced Investment Strategies",
+        "Tax Optimization",
+        "Retirement Planning",
+        "Wealth Preservation",
+        "Estate Planning Basics"
+      ],
+      outcomes: [
+        "Create long-term wealth plan",
+        "Understand tax implications",
+        "Plan for retirement goals",
+        "Implement wealth preservation strategies"
+      ],
+      resources: [
+        "Wealth Planning Calculator",
+        "Tax Optimization Guide",
+        "Retirement Planner",
+        "Estate Planning Checklist"
+      ]
+    }
+  ];
+
+  const features = [
+    {
+      icon: "bolt",
+      title: "Zero Commission",
+      description: "Trade stocks and ETFs with absolutely zero brokerage fees",
+      details: ["Equity Delivery", "Mutual Funds", "IPOs", "Gold Investments"]
+    },
+    {
+      icon: "shield",
+      title: "Advanced Security",
+      description: "Bank-level security with 2FA and military-grade encryption",
+      details: ["2-Factor Authentication", "SSL Encryption", "Secure Servers"]
+    },
+    {
+      icon: "chart-bar",
+      title: "Smart Analytics",
+      description: "AI-powered tools for portfolio analysis and market insights",
+      details: ["Portfolio Tracking", "Tax Reports", "Performance Analytics"]
+    },
+    {
+      icon: "rocket",
+      title: "Lightning Fast",
+      description: "Execute trades in milliseconds with our advanced technology",
+      details: ["High Speed Order", "Real-time Data", "Instant Notifications"]
+    }
+  ];
+
   const testimonials = [
     {
       name: "Priya Sharma",
-      role: "Software Engineer",
-      content:
-        "BharatVault made investing so simple! The educational content helped me start my journey confidently.",
-      avatar: "👩‍💼",
+      role: "Software Engineer, Bangalore",
+      content: "BharatVault transformed how I manage investments. The zero commission model and educational content helped me start confidently.",
+      avatar: "PS",
+      rating: 5
     },
     {
       name: "Rahul Mehta",
-      role: "Small Business Owner",
-      content:
-        "Zero commission and transparent pricing - exactly what Indian investors need. Highly recommended!",
-      avatar: "👨‍💼",
+      role: "Business Owner, Mumbai",
+      content: "Transparent pricing and excellent customer support. Exactly what Indian investors have been waiting for. Highly recommended!",
+      avatar: "RM",
+      rating: 5
     },
     {
       name: "Anita Reddy",
-      role: "College Student",
-      content:
-        "The mobile app is fantastic! I can manage my investments while attending classes.",
-      avatar: "👩‍🎓",
-    },
+      role: "College Student, Delhi",
+      content: "The mobile app is incredibly intuitive. I can manage my investments seamlessly while focusing on my studies.",
+      avatar: "AR",
+      rating: 5
+    }
   ];
+
+  // Learning Path Modal Component
+  const LearningPathModal = () => (
+    <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+      <div className="modal-dialog modal-xl modal-dialog-centered">
+        <div className="modal-content rounded-4 border-0 shadow-lg">
+          <div className="modal-header border-0 pb-0">
+            <div className="w-100">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="modal-title fw-bold" style={{ color: colors.dark }}>
+                  Financial Learning Path
+                </h2>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowLearningPath(false)}
+                ></button>
+              </div>
+              <p className="lead mb-4" style={{ color: colors.gray }}>
+                Follow this structured learning path to master personal finance and investing
+              </p>
+            </div>
+          </div>
+          <div className="modal-body">
+            <div className="row">
+              <div className="col-lg-4">
+                <div className="sticky-top" style={{ top: '20px' }}>
+                  <div className="list-group">
+                    {learningPath.map((module, index) => (
+                      <button
+                        key={module.module}
+                        className={`list-group-item list-group-item-action border-0 rounded-3 mb-2 ${
+                          activeLearningModule === index ? 'active' : ''
+                        }`}
+                        onClick={() => setActiveLearningModule(index)}
+                        style={{
+                          background: activeLearningModule === index ? colors.gradient : colors.light,
+                          color: activeLearningModule === index ? colors.white : colors.dark,
+                          border: `1px solid ${colors.lighter}`,
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 className="mb-1">Module {module.module}</h6>
+                            <small>{module.title}</small>
+                          </div>
+                          <span 
+                            className="badge rounded-pill"
+                            style={{
+                              background: activeLearningModule === index ? colors.white : colors.primary,
+                              color: activeLearningModule === index ? colors.primary : colors.white
+                            }}
+                          >
+                            {module.duration}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-8">
+                {learningPath[activeLearningModule] && (
+                  <div className="learning-module-content">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <h3 style={{ color: colors.dark }}>
+                        Module {learningPath[activeLearningModule].module}: {learningPath[activeLearningModule].title}
+                      </h3>
+                      <div className="d-flex gap-2">
+                        <span 
+                          className="badge px-3 py-2 rounded-pill"
+                          style={{ background: colors.gradientLight, color: colors.white }}
+                        >
+                          {learningPath[activeLearningModule].level}
+                        </span>
+                        <span 
+                          className="badge px-3 py-2 rounded-pill"
+                          style={{ background: colors.lighter, color: colors.dark }}
+                        >
+                          {learningPath[activeLearningModule].duration}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col-md-6 mb-4">
+                        <div className="card border-0 shadow-sm h-100">
+                          <div className="card-header border-0 bg-transparent">
+                            <h5 className="fw-bold mb-0" style={{ color: colors.dark }}>Learning Topics</h5>
+                          </div>
+                          <div className="card-body">
+                            <ul className="list-unstyled">
+                              {learningPath[activeLearningModule].topics.map((topic, index) => (
+                                <li key={index} className="mb-2 d-flex align-items-start">
+                                  <div 
+                                    className="rounded-circle d-flex align-items-center justify-content-center me-3 mt-1"
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      background: colors.primary,
+                                      color: colors.white,
+                                      fontSize: '10px',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    ✓
+                                  </div>
+                                  <span style={{ color: colors.gray }}>{topic}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-md-6 mb-4">
+                        <div className="card border-0 shadow-sm h-100">
+                          <div className="card-header border-0 bg-transparent">
+                            <h5 className="fw-bold mb-0" style={{ color: colors.dark }}>Learning Outcomes</h5>
+                          </div>
+                          <div className="card-body">
+                            <ul className="list-unstyled">
+                              {learningPath[activeLearningModule].outcomes.map((outcome, index) => (
+                                <li key={index} className="mb-2 d-flex align-items-start">
+                                  <div 
+                                    className="rounded-circle d-flex align-items-center justify-content-center me-3 mt-1"
+                                    style={{
+                                      width: '20px',
+                                      height: '20px',
+                                      background: colors.accent,
+                                      color: colors.white,
+                                      fontSize: '10px',
+                                      flexShrink: 0
+                                    }}
+                                  >
+                                    →
+                                  </div>
+                                  <span style={{ color: colors.gray }}>{outcome}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card border-0 shadow-sm">
+                      <div className="card-header border-0 bg-transparent">
+                        <h5 className="fw-bold mb-0" style={{ color: colors.dark }}>Learning Resources</h5>
+                      </div>
+                      <div className="card-body">
+                        <div className="row">
+                          {learningPath[activeLearningModule].resources.map((resource, index) => (
+                            <div key={index} className="col-md-4 mb-2">
+                              <div 
+                                className="p-3 rounded-3 text-center hover-lift"
+                                style={{
+                                  background: colors.lighter,
+                                  border: `1px solid ${colors.lighter}`,
+                                  transition: 'all 0.3s ease'
+                                }}
+                              >
+                                <small style={{ color: colors.dark }}>{resource}</small>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-center mt-4">
+                      <button
+                        className="btn btn-lg px-5 fw-semibold me-3"
+                        style={{
+                          background: colors.gradient,
+                          color: colors.white,
+                          border: 'none',
+                          borderRadius: '8px'
+                        }}
+                      >
+                        Start This Module
+                      </button>
+                      <button
+                        className="btn btn-outline-primary btn-lg px-5 fw-semibold"
+                        style={{ borderRadius: '8px' }}
+                      >
+                        Save Progress
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div
@@ -97,17 +490,20 @@ function HomePage() {
         overflowX: "hidden",
       }}
     >
-      {/* ===== NAVBAR ===== */}
+      {/* Learning Path Modal */}
+      {showLearningPath && <LearningPathModal />}
+
+      {/* Enhanced Navbar */}
       <nav
         className={`navbar navbar-expand-lg fixed-top py-3 ${
           isScrolled ? "navbar-scrolled" : ""
         }`}
         style={{
           transition: "all 0.3s ease",
-          background: isScrolled ? colors.white : "transparent",
-          backdropFilter: isScrolled ? "blur(15px)" : "none",
-          boxShadow: isScrolled ? "0 4px 30px rgba(0,0,0,0.1)" : "none",
-          borderBottom: isScrolled ? `1px solid ${colors.light}` : "none",
+          background: isScrolled ? `${colors.white}EE` : "transparent",
+          backdropFilter: isScrolled ? "blur(20px)" : "none",
+          boxShadow: isScrolled ? "0 8px 32px rgba(0,0,0,0.1)" : "none",
+          borderBottom: isScrolled ? `1px solid ${colors.lighter}` : "none",
           padding: "1rem 0",
         }}
       >
@@ -118,11 +514,11 @@ function HomePage() {
             style={{ color: colors.primary }}
           >
             <div
-              className="rounded-circle d-flex align-items-center justify-content-center me-2"
+              className="rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm"
               style={{
                 width: "42px",
                 height: "42px",
-                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+                background: colors.gradient,
               }}
             >
               <span
@@ -134,61 +530,20 @@ function HomePage() {
             </div>
             BharatVault
           </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+          
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav mx-auto">
-              <li className="nav-item mx-2">
-                <a
-                  className="nav-link fw-medium"
-                  href="#features"
-                  style={{ color: colors.dark }}
-                >
-                  Features
-                </a>
-              </li>
-              <li className="nav-item mx-2">
-                <a
-                  className="nav-link fw-medium"
-                  href="#products"
-                  style={{ color: colors.dark }}
-                >
-                  Products
-                </a>
-              </li>
-              <li className="nav-item mx-2">
-                <a
-                  className="nav-link fw-medium"
-                  href="#pricing"
-                  style={{ color: colors.dark }}
-                >
-                  Pricing
-                </a>
-              </li>
-              <li className="nav-item mx-2">
-                <a
-                  className="nav-link fw-medium"
-                  href="#education"
-                  style={{ color: colors.dark }}
-                >
-                  Education
-                </a>
-              </li>
-              <li className="nav-item mx-2">
-                <a
-                  className="nav-link fw-medium"
-                  href="#testimonials"
-                  style={{ color: colors.dark }}
-                >
-                  Reviews
-                </a>
-              </li>
+              {["Home", "Mission", "Features", "Learning", "Reviews"].map((item) => (
+                <li key={item} className="nav-item mx-2">
+                  <a
+                    className="nav-link fw-medium position-relative"
+                    href={`#${item.toLowerCase()}`}
+                    style={{ color: colors.dark }}
+                  >
+                    {item}
+                  </a>
+                </li>
+              ))}
             </ul>
             <div className="d-flex gap-3 align-items-center">
               {!user ? (
@@ -202,69 +557,50 @@ function HomePage() {
                     borderWidth: "2px",
                   }}
                 >
-                  Login
+                  Sign In
                 </button>
               ) : (
                 <div className="d-flex align-items-center gap-3">
-                  {/* Dashboard Button for logged-in users */}
-                  // In the navbar section
                   <button
-                    onClick={() => {
-                      console.log("🔄 HomePage: Dashboard button clicked");
-                      const userData = {
-                        clerkId: user.id,
-                        email: user.primaryEmailAddress?.emailAddress,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                      };
-                      console.log("📦 HomePage: User data:", userData);
-                      localStorage.setItem(
-                        "clerkUser",
-                        JSON.stringify(userData)
-                      );
-                      console.log("✅ HomePage: Data stored, redirecting...");
-                      setTimeout(() => {
-                        window.location.href = "http://localhost:3001";
-                      }, 100);
-                    }}
-                    className="btn px-3 fw-semibold"
+                    onClick={handleDashboardClick}
+                    className="btn px-4 fw-semibold shadow-sm"
                     style={{
-                      background: `linear-gradient(135deg, ${colors.accent} 0%, #0ca678 100%)`,
+                      background: colors.gradient,
                       border: "none",
                       color: colors.white,
                       borderRadius: "8px",
-                      fontSize: "0.9rem",
                     }}
                   >
-                    🚀 Dashboard
+                    Go to Dashboard
                   </button>
                   <UserButton />
                 </div>
               )}
-
-              <button
-                className="btn px-4 fw-semibold"
-                style={{
-                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
-                  border: "none",
-                  color: colors.white,
-                  borderRadius: "8px",
-                }}
-              >
-                Sign Up
-              </button>
+              {!user && (
+                <button
+                  className="btn px-4 fw-semibold shadow-sm"
+                  style={{
+                    background: colors.gradient,
+                    border: "none",
+                    color: colors.white,
+                    borderRadius: "8px",
+                  }}
+                >
+                  Get Started
+                </button>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Add spacer to prevent navbar overlap */}
       <div style={{ height: "80px" }}></div>
 
       {/* ===== HERO SECTION ===== */}
       <section
+        id="home"
         style={{
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
+          background: colors.gradient,
           color: colors.white,
           position: "relative",
           overflow: "hidden",
@@ -273,47 +609,29 @@ function HomePage() {
         <div className="container py-5">
           <div className="row align-items-center min-vh-100 py-5">
             <div className="col-lg-6" data-aos="fade-right">
-              <div className="badge bg-white bg-opacity-20 text-white px-3 py-2 rounded-pill mb-3">
-                India's Fastest Growing Investment Platform
+              <div className="badge bg-white bg-opacity-20 text-white px-4 py-2 rounded-pill mb-4 shadow-sm">
+                India's Most Trusted Investment Platform
               </div>
               <h1 className="display-4 fw-bold mb-4">
-                Smart Investing{" "}
-                <span style={{ color: colors.secondary }}>Made Simple</span>
+                Smart Investing Made Simple
               </h1>
-              <p className="lead mb-4 opacity-90 fs-5">
-                Trade stocks, derivatives, mutual funds, and more with India's
-                most trusted platform. Start your financial journey with
-                complete transparency and security.
+              <p className="lead mb-5 opacity-90 fs-5">
+                Trade stocks, derivatives, mutual funds, and more with India's most trusted platform. 
+                Start your financial journey with complete transparency and security.
               </p>
-              <div className="d-flex flex-wrap gap-3 mb-4">
+              <div className="d-flex flex-wrap gap-3 mb-5">
                 <button
-                  className="btn btn-light btn-lg px-4 py-3 fw-semibold shadow-sm d-flex align-items-center gap-2"
+                  className="btn btn-light btn-lg px-5 py-3 fw-semibold shadow d-flex align-items-center gap-2"
                   style={{ borderRadius: "10px", color: colors.primary }}
                 >
-                  <i className="fas fa-rocket"></i>
-                  Get Started Free
+                  Start Investing Free
                 </button>
                 <button
-                  className="btn btn-outline-light btn-lg px-4 py-3 fw-semibold d-flex align-items-center gap-2"
+                  className="btn btn-outline-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center gap-2"
                   style={{ borderRadius: "10px" }}
                 >
-                  <i className="fas fa-play-circle"></i>
                   Watch Demo
                 </button>
-              </div>
-              <div className="d-flex gap-4 text-center">
-                <div>
-                  <h4 className="fw-bold mb-1">1.6Cr+</h4>
-                  <small className="opacity-80">Happy Investors</small>
-                </div>
-                <div>
-                  <h4 className="fw-bold mb-1">₹6L Cr+</h4>
-                  <small className="opacity-80">Assets Managed</small>
-                </div>
-                <div>
-                  <h4 className="fw-bold mb-1">4.8★</h4>
-                  <small className="opacity-80">Play Store Rating</small>
-                </div>
               </div>
             </div>
             <div
@@ -322,38 +640,37 @@ function HomePage() {
               data-aos-delay="200"
             >
               <div className="position-relative">
-                <img
-                  src="media/images/homeHero.png"
-                  alt="Investment Dashboard"
-                  className="img-fluid rounded-3 shadow-lg"
+                <div
+                  className="bg-white rounded-4 shadow-xl p-2"
                   style={{
-                    maxWidth: "100%",
-                    transform:
-                      "perspective(1000px) rotateY(-5deg) rotateX(5deg)",
-                    border: `2px solid rgba(255,255,255,0.1)`,
+                    transform: "perspective(1000px) rotateY(-5deg) rotateX(5deg)",
+                    border: `1px solid ${colors.lighter}`
                   }}
-                />
-                {/* Floating elements */}
-                <div
-                  className="position-absolute top-0 start-0 bg-white rounded-3 p-3 shadow-lg"
-                  style={{ transform: "translate(-30%, -30%)", width: "120px" }}
                 >
-                  <div
-                    className="text-success fw-bold"
-                    style={{ color: colors.accent }}
+                  <div 
+                    className="rounded-3 p-4 text-white text-center"
+                    style={{ background: colors.gradient }}
                   >
-                    +12.5%
+                    <h5 className="fw-bold">Portfolio Overview</h5>
+                    <div className="display-6 fw-bold my-3">₹2,45,670</div>
+                    <div className="text-success fw-semibold">+12.5% Today</div>
                   </div>
-                  <small className="text-muted">Today's Gain</small>
-                </div>
-                <div
-                  className="position-absolute bottom-0 end-0 bg-white rounded-3 p-3 shadow-lg"
-                  style={{ transform: "translate(30%, 30%)", width: "120px" }}
-                >
-                  <div className="fw-bold" style={{ color: colors.primary }}>
-                    ₹2.5L
+                  <div className="p-3">
+                    <div className="row text-center">
+                      <div className="col-4">
+                        <div className="text-sm text-muted">Stocks</div>
+                        <div className="fw-bold">₹1,82,450</div>
+                      </div>
+                      <div className="col-4">
+                        <div className="text-sm text-muted">Mutual Funds</div>
+                        <div className="fw-bold">₹48,220</div>
+                      </div>
+                      <div className="col-4">
+                        <div className="text-sm text-muted">Cash</div>
+                        <div className="fw-bold">₹15,000</div>
+                      </div>
+                    </div>
                   </div>
-                  <small className="text-muted">Portfolio Value</small>
                 </div>
               </div>
             </div>
@@ -379,15 +696,287 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ===== ALL OTHER SECTIONS REMAIN EXACTLY THE SAME ===== */}
-      {/* Products, Features, Testimonials, Mobile App, Pricing, Education sections */}
-      {/* ... your existing code for these sections ... */}
+      {/* ===== MISSION SECTION ===== */}
+      <section id="mission" className="py-5" style={{ background: colors.white }}>
+        <div className="container py-5">
+          <div className="row justify-content-center text-center mb-5">
+            <div className="col-lg-10">
+              <h2 className="display-5 fw-bold mb-4" style={{ color: colors.dark }}>
+                Solving India's Financial Challenges
+              </h2>
+              <p className="lead mb-5" style={{ color: colors.gray }}>
+                We're addressing core financial problems faced by millions of Indians through innovative technology solutions
+              </p>
+            </div>
+          </div>
+          
+          <div className="row">
+            {societalSolutions.map((solution, index) => (
+              <div key={index} className="col-lg-4 col-md-6 mb-4">
+                <div
+                  className="solution-card h-100 p-4 rounded-4 shadow-sm border-0"
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
+                  style={{
+                    background: colors.white,
+                    transition: "all 0.3s ease",
+                    border: `1px solid ${colors.lighter}`,
+                    borderTop: `4px solid ${solution.color}`
+                  }}
+                >
+                  <div className="d-flex align-items-center mb-3">
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        background: `${solution.color}20`,
+                        color: solution.color,
+                        fontSize: "1.2rem"
+                      }}
+                    >
+                      <i className={`fas fa-${solution.icon}`}></i>
+                    </div>
+                    <h5 className="fw-bold mb-0" style={{ color: colors.dark }}>
+                      {solution.problem}
+                    </h5>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <small className="text-uppercase fw-semibold" style={{ color: colors.primary }}>
+                      Our Solution
+                    </small>
+                    <p className="mb-2" style={{ color: colors.dark, fontSize: "0.95rem" }}>
+                      {solution.solution}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <small className="text-uppercase fw-semibold" style={{ color: colors.accent }}>
+                      Outcome
+                    </small>
+                    <p className="mb-0 fw-semibold" style={{ color: solution.color, fontSize: "0.95rem" }}>
+                      {solution.outcome}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FEATURES SECTION ===== */}
+      <section id="features" className="py-5" style={{ background: colors.lighter }}>
+        <div className="container py-5">
+          <div className="row justify-content-center text-center mb-5">
+            <div className="col-lg-8">
+              <h2 className="display-5 fw-bold mb-3" style={{ color: colors.dark }}>
+                Platform Features
+              </h2>
+              <p className="lead" style={{ color: colors.gray }}>
+                Everything you need for successful investing
+              </p>
+            </div>
+          </div>
+          
+          <div className="row">
+            {features.map((feature, index) => (
+              <div key={index} className="col-lg-3 col-md-6 mb-4">
+                <div
+                  className="feature-card h-100 p-4 rounded-4 shadow-sm border-0"
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
+                  style={{
+                    background: colors.white,
+                    transition: "all 0.3s ease",
+                    border: `1px solid ${colors.lighter}`
+                  }}
+                >
+                  <div
+                    className="feature-icon mb-4 rounded-3 d-flex align-items-center justify-content-center"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      background: colors.gradientLight,
+                      color: colors.white,
+                      fontSize: "1.5rem"
+                    }}
+                  >
+                    <i className={`fas fa-${feature.icon}`}></i>
+                  </div>
+                  <h5 className="fw-bold mb-3" style={{ color: colors.dark }}>
+                    {feature.title}
+                  </h5>
+                  <p style={{ color: colors.gray, fontSize: "0.9rem" }}>{feature.description}</p>
+                  <ul className="list-unstyled mt-3">
+                    {feature.details.map((detail, i) => (
+                      <li key={i} className="mb-2">
+                        <small style={{ color: colors.gray }}>
+                          • {detail}
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== LEARNING SECTION ===== */}
+      <section id="learning" className="py-5" style={{ background: colors.white }}>
+        <div className="container py-5">
+          <div className="row justify-content-center text-center mb-5">
+            <div className="col-lg-8">
+              <h2 className="display-5 fw-bold mb-3" style={{ color: colors.dark }}>
+                Learn & Grow Your Wealth
+              </h2>
+              <p className="lead" style={{ color: colors.gray }}>
+                Master personal finance and investing with our structured learning path
+              </p>
+            </div>
+          </div>
+          
+          <div className="row">
+            {learningPath.slice(0, 3).map((module, index) => (
+              <div key={index} className="col-lg-4 col-md-6 mb-4">
+                <div
+                  className="education-card h-100 p-4 rounded-4 shadow-sm border-0"
+                  data-aos="fade-up"
+                  data-aos-delay={index * 100}
+                  style={{
+                    background: colors.white,
+                    transition: "all 0.3s ease",
+                    border: `1px solid ${colors.lighter}`
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <span
+                      className="badge px-3 py-2 rounded-pill"
+                      style={{
+                        background: colors.gradientLight,
+                        color: colors.white,
+                        fontSize: "0.7rem"
+                      }}
+                    >
+                      Module {module.module}
+                    </span>
+                    <small style={{ color: colors.gray }}>{module.duration}</small>
+                  </div>
+                  <h5 className="fw-bold mb-3" style={{ color: colors.dark }}>
+                    {module.title}
+                  </h5>
+                  <p style={{ color: colors.gray, fontSize: "0.9rem" }}>
+                    {module.topics.slice(0, 2).join(', ')}...
+                  </p>
+                  <div className="mt-auto">
+                    <button
+                      onClick={handleStartLearning}
+                      className="btn btn-outline-primary btn-sm w-100"
+                      style={{ borderRadius: "6px" }}
+                    >
+                      Start Learning
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center mt-4">
+            <button
+              onClick={handleStartLearning}
+              className="btn btn-primary btn-lg px-5 fw-semibold"
+              style={{ borderRadius: "8px" }}
+            >
+              View Complete Learning Path
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== TESTIMONIALS SECTION ===== */}
+      <section id="reviews" className="py-5" style={{ background: colors.lighter }}>
+        <div className="container py-5">
+          <div className="row justify-content-center text-center mb-5">
+            <div className="col-lg-8">
+              <h2 className="display-5 fw-bold mb-3" style={{ color: colors.dark }}>
+                Trusted by Investors
+              </h2>
+              <p className="lead" style={{ color: colors.gray }}>
+                See what our community has to say about their experience
+              </p>
+            </div>
+          </div>
+          
+          <div className="row justify-content-center">
+            <div className="col-lg-8">
+              <div
+                className="testimonial-card p-5 rounded-4 shadow-sm border-0 position-relative"
+                style={{
+                  background: colors.white,
+                  minHeight: "300px"
+                }}
+                data-aos="fade-up"
+              >
+                <div className="text-center mb-4">
+                  <div
+                    className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      background: colors.gradient,
+                      color: colors.white,
+                      fontSize: "1.2rem",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    {testimonials[activeTestimonial].avatar}
+                  </div>
+                  <h5 className="fw-bold mb-1" style={{ color: colors.dark }}>
+                    {testimonials[activeTestimonial].name}
+                  </h5>
+                  <small style={{ color: colors.gray }}>
+                    {testimonials[activeTestimonial].role}
+                  </small>
+                  <div className="mt-2" style={{ color: colors.secondary }}>
+                    {"★".repeat(testimonials[activeTestimonial].rating)}
+                  </div>
+                </div>
+                <p className="text-center lead" style={{ color: colors.dark, fontStyle: "italic" }}>
+                  "{testimonials[activeTestimonial].content}"
+                </p>
+                
+                <div className="text-center mt-4">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`btn btn-sm mx-1 rounded-circle ${
+                        index === activeTestimonial ? "bg-primary" : "bg-light"
+                      }`}
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        border: "none",
+                        transition: "all 0.3s ease"
+                      }}
+                      onClick={() => setActiveTestimonial(index)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ===== CTA SECTION ===== */}
       <section
         className="py-5"
         style={{
-          background: `linear-gradient(135deg, ${colors.dark} 0%, #334155 100%)`,
+          background: colors.gradient,
           color: colors.white,
         }}
       >
@@ -395,31 +984,26 @@ function HomePage() {
           <div className="row justify-content-center text-center">
             <div className="col-lg-8" data-aos="zoom-in">
               <h2 className="display-5 fw-bold mb-4">
-                Ready to Start Your Investment Journey?
+                Ready to Transform Your Financial Future?
               </h2>
               <p className="lead mb-5 opacity-90">
-                Join millions of investors who trust BharatVault for their
-                financial growth. Start with zero commission and experience the
-                future of investing.
+                Join millions of investors who trust BharatVault for their financial growth. 
+                Start with zero commission and experience the future of investing.
               </p>
               <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
                 {user ? (
-                  // Dashboard button that opens the actual dashboard app
                   <button
                     onClick={handleDashboardClick}
-                    className="btn btn-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                    className="btn btn-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow"
                     style={{ borderRadius: "10px", color: colors.primary }}
                   >
-                    <i className="fas fa-rocket"></i>
                     Go to Dashboard
                   </button>
                 ) : (
-                  // Show signup button if not logged in
                   <button
-                    className="btn btn-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                    className="btn btn-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow"
                     style={{ borderRadius: "10px", color: colors.primary }}
                   >
-                    <i className="fas fa-user-plus"></i>
                     Create Free Account
                   </button>
                 )}
@@ -427,14 +1011,8 @@ function HomePage() {
                   className="btn btn-outline-light btn-lg px-5 py-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
                   style={{ borderRadius: "10px" }}
                 >
-                  <i className="fas fa-mobile-alt"></i>
-                  Download App
+                  Download Mobile App
                 </button>
-              </div>
-              <div className="mt-4">
-                <small className="opacity-75">
-                  No hidden charges • 2-minute signup • 24/7 Support
-                </small>
               </div>
             </div>
           </div>
@@ -444,49 +1022,56 @@ function HomePage() {
       {/* ===== FOOTER ===== */}
       <footer style={{ background: colors.dark, color: colors.white }}>
         <div className="container pt-5 pb-4">
-          {/* Your existing footer code */}
           <div className="row align-items-center">
             <div className="col-md-6 mb-3 mb-md-0">
               <p className="mb-0 opacity-75">
-                © {new Date().getFullYear()}{" "}
-                <strong>BharatVault Technologies Pvt. Ltd.</strong> All rights
-                reserved.
+                © {new Date().getFullYear()} BharatVault Technologies Pvt. Ltd. All rights reserved.
               </p>
             </div>
             <div className="col-md-6 text-md-end">
               <div className="d-flex flex-wrap justify-content-md-end gap-3 opacity-75">
                 <small>SEBI Registered: INZ000200331</small>
                 <small>CDSL: IN-DP-CDSL-490-2008</small>
-                <small>Made with ❤️ for Indian Investors</small>
               </div>
             </div>
           </div>
         </div>
       </footer>
 
+      {/* Chat Bot Toggle
+      <button
+        onClick={() => setShowChatBot(!showChatBot)}
+        className="btn btn-primary rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center"
+        style={{
+          width: "60px",
+          height: "60px",
+          bottom: "30px",
+          right: "30px",
+          zIndex: 1000,
+          background: colors.gradient,
+          border: "none",
+          fontSize: "1.2rem"
+        }}
+      >
+        <i className="fas fa-comment"></i>
+      </button>
+
+      {/* Chat Bot */}
+      {/* {showChatBot && (
+        <div className="position-fixed" style={{ bottom: "100px", right: "30px", zIndex: 1000 }}>
+          <ChatBot />
+        </div>
+      // )} */} 
+
       {/* Custom Styles */}
       <style jsx>{`
-        .feature-card,
-        .product-card,
-        .testimonial-card,
-        .education-item {
-          transition: all 0.3s ease;
-        }
         .feature-card:hover,
-        .product-card:hover {
+        .solution-card:hover,
+        .education-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
         }
-        .popular-card {
-          transform: scale(1.02);
-        }
-        .hover-lift {
-          transition: all 0.3s ease;
-        }
-        .hover-lift:hover {
-          transform: translateY(-2px);
-          opacity: 1 !important;
-        }
+        
         .wave-divider {
           position: absolute;
           bottom: 0;
@@ -495,21 +1080,25 @@ function HomePage() {
           overflow: hidden;
           line-height: 0;
           transform: rotate(180deg);
-          color: #f8fafc;
+          color: ${colors.white};
         }
+        
         .wave-divider svg {
           position: relative;
           display: block;
           width: calc(100% + 1.3px);
           height: 80px;
         }
+        
         .navbar-nav .nav-link {
           position: relative;
           transition: all 0.3s ease;
         }
+        
         .navbar-nav .nav-link:hover {
           color: ${colors.primary} !important;
         }
+        
         .navbar-nav .nav-link::after {
           content: "";
           position: absolute;
@@ -517,16 +1106,21 @@ function HomePage() {
           height: 2px;
           bottom: 0;
           left: 50%;
-          background: linear-gradient(
-            135deg,
-            ${colors.primary} 0%,
-            ${colors.primaryDark} 100%
-          );
+          background: ${colors.gradient};
           transition: all 0.3s ease;
         }
+        
         .navbar-nav .nav-link:hover::after {
           width: 100%;
           left: 0;
+        }
+        
+        .hover-lift {
+          transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+          transform: translateY(-2px);
         }
       `}</style>
     </div>
