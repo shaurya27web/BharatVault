@@ -1,5 +1,4 @@
 import React from 'react';
-import DoughnutChart from './DoughnutChart';
 
 const Summary = ({ user }) => {
   const portfolioData = {
@@ -9,6 +8,8 @@ const Summary = ({ user }) => {
     bonds: 10
   };
 
+  const totalValue = 189000; // Example total portfolio value
+
   return (
     <div style={{ 
       background: '#1e293b',
@@ -16,18 +17,40 @@ const Summary = ({ user }) => {
       borderRadius: '12px',
       border: '1px solid #334155'
     }}>
-      <h3 style={{ margin: '0 0 15px 0', color: '#f8fafc' }}>Portfolio Summary</h3>
+      <h3 style={{ margin: '0 0 20px 0', color: '#f8fafc' }}>Portfolio Summary</h3>
       
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '150px' }}>
-          <DoughnutChart data={portfolioData} />
+      <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+        {/* Portfolio Allocation */}
+        <div style={{ flex: 1, minWidth: '200px' }}>
+          <h4 style={{ color: '#94a3b8', margin: '0 0 15px 0', fontSize: '14px' }}>Portfolio Allocation</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              { label: 'Stocks', value: portfolioData.stocks, color: '#3b82f6' },
+              { label: 'Mutual Funds', value: portfolioData.mutualFunds, color: '#8b5cf6' },
+              { label: 'Cash', value: portfolioData.cash, color: '#06b6d4' },
+              { label: 'Bonds', value: portfolioData.bonds, color: '#f59e0b' }
+            ].map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ 
+                  width: '12px', 
+                  height: '12px', 
+                  backgroundColor: item.color, 
+                  borderRadius: '2px' 
+                }}></div>
+                <span style={{ color: '#94a3b8', fontSize: '14px', flex: 1 }}>{item.label}</span>
+                <span style={{ color: '#f8fafc', fontWeight: 'bold' }}>{item.value}%</span>
+              </div>
+            ))}
+          </div>
         </div>
         
-        <div style={{ flex: 2, minWidth: '200px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {/* Financial Metrics */}
+        <div style={{ flex: 1, minWidth: '200px' }}>
+          <h4 style={{ color: '#94a3b8', margin: '0 0 15px 0', fontSize: '14px' }}>Financial Metrics</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#94a3b8' }}>Total Value:</span>
-              <span style={{ color: '#f8fafc', fontWeight: 'bold' }}>₹{user.balance?.toLocaleString() || '0'}</span>
+              <span style={{ color: '#f8fafc', fontWeight: 'bold' }}>₹{totalValue.toLocaleString()}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#94a3b8' }}>Today's P&L:</span>

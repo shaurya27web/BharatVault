@@ -1,10 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const holdingsController = require("../controllers/holdingsController");
+const {
+  getUserHoldings,
+  getPortfolioSummary,
+  addHolding
+} = require("../controllers/holdingsController");
 
-// ✅ Base route for holdings
-router.get("/", holdingsController.getAllHoldings);
-router.post("/", holdingsController.addHolding);
-router.delete("/:id", holdingsController.deleteHolding);
+// MATCHES: API.get(`/holdings/user/${userId}`)
+router.get("/user/:userId", getUserHoldings);
+
+// MATCHES: API.get(`/holdings/summary/${userId}`)
+router.get("/summary/:userId", getPortfolioSummary);
+
+// MATCHES: API.post("/holdings", holdingData)
+router.post("/", addHolding);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useGeneral } from './GeneralContext';
 import Funds from './Funds';
 import Holdings from './Holdings';
 import Orders from './Orders';
@@ -8,10 +9,10 @@ import Summary from './Summary';
 import WatchList from './WatchList';
 import TopBar from './TopBar';
 import Menu from './Menu';
-import DoughnutChart from './DoughnoutChart';
 
 function Dashboard() {
   const { user, loading, backendError } = useAuth();
+  const { activeComponent } = useGeneral();
 
   if (loading) {
     return (
@@ -34,6 +35,70 @@ function Dashboard() {
     );
   }
 
+  // Render different components based on active selection
+  const renderActiveComponent = () => {
+    switch (activeComponent) {
+      case 'funds':
+        return <Funds />;
+      case 'holdings':
+        return <Holdings />;
+      case 'orders':
+        return <Orders />;
+      case 'positions':
+        return <Positions />;
+      case 'watchlist':
+        return <WatchList />;
+      case 'dashboard':
+      default:
+        return (
+          <>
+            {backendError && (
+              <div style={{ 
+                background: '#fef3c7', 
+                color: '#92400e',
+                padding: '10px', 
+                borderRadius: '8px',
+                textAlign: 'center',
+                marginBottom: '20px'
+              }}>
+                ⚠️ Backend connection issue. Using demo data. Some features may not work.
+              </div>
+            )}
+            
+            {/* Top Row - Summary and Funds */}
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 2, minWidth: '300px' }}>
+                <Summary user={user} />
+              </div>
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <Funds />
+              </div>
+            </div>
+            
+            {/* Middle Row - Watchlist and Holdings */}
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <WatchList />
+              </div>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <Holdings />
+              </div>
+            </div>
+            
+            {/* Bottom Row - Orders and Positions */}
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <Orders />
+              </div>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <Positions />
+              </div>
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="dashboard" style={{ 
       minHeight: '100vh', 
@@ -54,47 +119,7 @@ function Dashboard() {
           flexDirection: 'column',
           gap: '20px'
         }}>
-          {backendError && (
-            <div style={{ 
-              background: '#fef3c7', 
-              color: '#92400e',
-              padding: '10px', 
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              ⚠️ Backend connection issue. Using demo data. Some features may not work.
-            </div>
-          )}
-          
-          {/* Top Row - Summary and Funds */}
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 2, minWidth: '300px' }}>
-              <Summary user={user} />
-            </div>
-            <div style={{ flex: 1, minWidth: '250px' }}>
-              <Funds />
-            </div>
-          </div>
-          
-          {/* Middle Row - Watchlist and Holdings */}
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <WatchList />
-            </div>
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <Holdings />
-            </div>
-          </div>
-          
-          {/* Bottom Row - Orders and Positions */}
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <Orders />
-            </div>
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <Positions />
-            </div>
-          </div>
+          {renderActiveComponent()}
         </div>
       </div>
     </div>

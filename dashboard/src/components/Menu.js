@@ -1,100 +1,62 @@
-import React, { useState } from "react";
-
-import { Link } from "react-router-dom";
+import React from 'react';
+import { useGeneral } from './GeneralContext';
 
 const Menu = () => {
-  const [selectedMenu, setSelectedMenu] = useState(0);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const { activeComponent, setActiveComponent } = useGeneral();
 
-  const handleMenuClick = (index) => {
-    setSelectedMenu(index);
-  };
-
-  const handleProfileClick = (index) => {
-    setIsProfileDropdownOpen(!isProfileDropdownOpen);
-  };
-
-  const menuClass = "menu";
-  const activeMenuClass = "menu selected";
+  const menuItems = [
+    { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+    { id: 'funds', icon: '💰', label: 'Funds' },
+    { id: 'holdings', icon: '📈', label: 'Holdings' },
+    { id: 'orders', icon: '📋', label: 'Orders' },
+    { id: 'positions', icon: '⚡', label: 'Positions' },
+    { id: 'watchlist', icon: '👁️', label: 'Watchlist' }
+  ];
 
   return (
-    <div className="menu-container">
-      <img src="logo.png" style={{ width: "50px" }} />
-      <div className="menus">
-        <ul>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="/"
-              onClick={() => handleMenuClick(0)}
-            >
-              <p className={selectedMenu === 0 ? activeMenuClass : menuClass}>
-                Dashboard
-              </p>
-            </Link>
+    <div style={{
+      width: '200px',
+      background: '#1e293b',
+      padding: '20px',
+      borderRight: '1px solid #334155',
+      minHeight: 'calc(100vh - 70px)'
+    }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {menuItems.map((item) => (
+          <li 
+            key={item.id}
+            onClick={() => setActiveComponent(item.id)}
+            style={{ 
+              padding: '12px 15px', 
+              cursor: 'pointer',
+              borderRadius: '8px',
+              marginBottom: '8px',
+              color: activeComponent === item.id ? '#f8fafc' : '#94a3b8',
+              background: activeComponent === item.id ? '#334155' : 'transparent',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontWeight: activeComponent === item.id ? 'bold' : 'normal'
+            }}
+            onMouseEnter={(e) => {
+              if (activeComponent !== item.id) {
+                e.target.style.background = '#334155';
+                e.target.style.color = '#f8fafc';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeComponent !== item.id) {
+                e.target.style.background = 'transparent';
+                e.target.style.color = '#94a3b8';
+              }
+            }}
+          >
+            <span style={{ fontSize: '1.1em' }}>{item.icon}</span>
+            <span>{item.label}</span>
           </li>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="/orders"
-              onClick={() => handleMenuClick(1)}
-            >
-              <p className={selectedMenu === 1 ? activeMenuClass : menuClass}>
-                Orders
-              </p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="/holdings"
-              onClick={() => handleMenuClick(2)}
-            >
-              <p className={selectedMenu === 2 ? activeMenuClass : menuClass}>
-                Holdings
-              </p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="/positions"
-              onClick={() => handleMenuClick(3)}
-            >
-              <p className={selectedMenu === 3 ? activeMenuClass : menuClass}>
-                Positions
-              </p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="funds"
-              onClick={() => handleMenuClick(4)}
-            >
-              <p className={selectedMenu === 4 ? activeMenuClass : menuClass}>
-                Funds
-              </p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              style={{ textDecoration: "none" }}
-              to="/apps"
-              onClick={() => handleMenuClick(6)}
-            >
-              <p className={selectedMenu === 6 ? activeMenuClass : menuClass}>
-                Apps
-              </p>
-            </Link>
-          </li>
-        </ul>
-        <hr />
-        <div className="profile" onClick={handleProfileClick}>
-          <div className="avatar">ZU</div>
-          <p className="username">USERID</p>
-        </div>
-      </div>
+        ))}
+      </ul>
     </div>
   );
 };

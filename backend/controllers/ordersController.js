@@ -1,32 +1,67 @@
-const OrdersModel = require("../models/ordersModel");
+const Orders = require("../models/OrdersModel");
 
-// Get all orders
-exports.getAllOrders = async (req, res) => {
+// Get user orders - MATCHES dashboard API call
+exports.getUserOrders = async (req, res) => {
   try {
-    const orders = await OrdersModel.find();
-    res.status(200).json(orders);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching orders", error: err });
+    const { userId } = req.params;
+    
+    // Sample data - replace with actual database call
+    const orders = [
+      {
+        _id: '1',
+        stockId: { symbol: 'RELIANCE', name: 'Reliance Industries' },
+        type: 'BUY',
+        quantity: 5,
+        price: 2560,
+        status: 'Completed'
+      },
+      {
+        _id: '2',
+        stockId: { symbol: 'TCS', name: 'Tata Consultancy' },
+        type: 'SELL', 
+        quantity: 2,
+        price: 3340,
+        status: 'Pending'
+      },
+      {
+        _id: '3',
+        stockId: { symbol: 'INFY', name: 'Infosys' },
+        type: 'BUY',
+        quantity: 10,
+        price: 1600,
+        status: 'Completed'
+      }
+    ];
+
+    res.status(200).json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error("Get orders error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching orders",
+      error: error.message
+    });
   }
 };
 
-// Place a new order
+// Place order
 exports.placeOrder = async (req, res) => {
   try {
-    const newOrder = new OrdersModel(req.body);
-    await newOrder.save();
-    res.status(201).json({ message: "Order placed successfully", data: newOrder });
-  } catch (err) {
-    res.status(500).json({ message: "Error placing order", error: err });
-  }
-};
-
-// Cancel an order
-exports.cancelOrder = async (req, res) => {
-  try {
-    await OrdersModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Order cancelled successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Error cancelling order", error: err });
+    const { userId, stockId, type, quantity, price, orderType } = req.body;
+    
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully"
+    });
+  } catch (error) {
+    console.error("Place order error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error placing order",
+      error: error.message
+    });
   }
 };

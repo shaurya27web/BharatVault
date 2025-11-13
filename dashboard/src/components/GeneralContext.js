@@ -14,6 +14,7 @@ export const useGeneral = () => {
 export const GeneralProvider = ({ children }) => {
   const { user: authUser } = useAuth();
   const [user, setUser] = useState(authUser);
+  const [activeComponent, setActiveComponent] = useState('dashboard'); // Default to dashboard
 
   // Update user when auth user changes
   React.useEffect(() => {
@@ -22,7 +23,9 @@ export const GeneralProvider = ({ children }) => {
 
   const value = {
     user,
-    setUser
+    setUser,
+    activeComponent,
+    setActiveComponent
   };
 
   return (

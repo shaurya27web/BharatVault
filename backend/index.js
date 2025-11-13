@@ -12,26 +12,17 @@ const userRoutes = require("./routes/userRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const lendingRoutes = require("./routes/lendingRoutes");
 const vaultRoutes = require("./routes/vaultRoutes");
+const watchlistRoutes = require("./routes/watchlistRoutes"); // Add this
 
 const app = express();
 
-// ✅ MIDDLEWARE - Fix the order
+// ✅ middleware
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
-app.use(bodyParser.json()); // This should come before routes
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// ✅ Test route for body parsing
-app.post("/test-body", (req, res) => {
-  console.log("🔍 Test body received:", req.body);
-  res.json({ 
-    success: true, 
-    body: req.body,
-    message: "Body parsing test" 
-  });
-});
 
 // ✅ route prefixes
 app.use("/holdings", holdingsRoutes);
@@ -41,6 +32,7 @@ app.use("/user", userRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/lending", lendingRoutes);
 app.use("/vault", vaultRoutes);
+app.use("/watchlist", watchlistRoutes); // Add this
 
 // ✅ connect to MongoDB
 const PORT = process.env.PORT || 3002;

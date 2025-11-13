@@ -1,10 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const ordersController = require("../controllers/ordersController");
+const {
+  getUserOrders,
+  placeOrder
+} = require("../controllers/ordersController");
 
-// Routes
-router.get("/", ordersController.getAllOrders);
-router.post("/", ordersController.placeOrder);
-router.delete("/:id", ordersController.cancelOrder);
+// MATCHES: API.get(`/orders/user/${userId}`)
+router.get("/user/:userId", getUserOrders);
+
+// MATCHES: API.post("/orders", orderData)
+router.post("/", placeOrder);
 
 module.exports = router;
